@@ -10,24 +10,49 @@ import json
 
 def dragon_ball_aplicacion(menu):
     seguir = True
+    bandera_lista = False
+    bandera_json = False
     while seguir:
         respuesta = dragon_ball_menu_principal(menu)
         print(f'Se ingreso la opcion: {respuesta}')
         match respuesta:
             case 1:
                 lista_personajes = dragon_ball_traer_datos("DBZ.csv")
+                bandera_lista = True
             case 2:
-                dragon_ball_cantidad_segun_caracteristica(lista_personajes, "raza")
+                if bandera_lista == True:
+                    dragon_ball_cantidad_segun_caracteristica(lista_personajes, "raza")
+                else:
+                    print("No se trajo una lista del archivo")
             case 3:
-                dragon_ball_mostrar_nombre_poder_segun_caracteristica(lista_personajes, "raza")
+                if bandera_lista == True:
+                    dragon_ball_mostrar_nombre_poder_segun_caracteristica(lista_personajes, "raza")
+                else:
+                    print("No se trajo una lista del archivo")
             case 4:
-                dragon_ball_personajes_habilidad_ingresada(lista_personajes, "habilidades")
+                if bandera_lista == True:
+                    dragon_ball_personajes_habilidad_ingresada(lista_personajes, "habilidades")
+                else:
+                    print("No se trajo una lista del archivo")
             case 5:
-                dragon_ball_generar_batalla(lista_personajes)
+                if bandera_lista == True:
+                    dragon_ball_generar_batalla(lista_personajes)
+                else:
+                    print("No se trajo una lista del archivo")
             case 6:
-                nombre_archivo = dragon_ball_json(lista_personajes)
+                if bandera_lista == True:
+                    nombre_archivo = dragon_ball_json(lista_personajes)
+                    bandera_json = True
+                else:
+                    print("No se trajo una lista del archivo")
             case 7:
-                dragon_ball_leer_json(nombre_archivo)
+                if bandera_lista == True:
+                    if bandera_json == True:
+                        dragon_ball_leer_json(nombre_archivo)
+                    else:
+                        print("No se creo ningun archivo en el punto 6")
+                else:
+                    print("No se trajo una lista del archivo")
             case 8:
                 seguir = False
 
@@ -61,9 +86,16 @@ def dragon_ball_menu_principal(menu):
     '''
     if type(menu) == tuple and len(menu)>0:
         imprimir_menu(menu)
-        respuesta = int(input("Elija una opcion: "))
-        if respuesta > len(menu) or respuesta < 0:
-            return -1
+        while True:
+            respuesta = input("Elija una opcion: ")
+            if not respuesta.isnumeric():
+                print("Error: No se encuentra dicha opcion")
+                continue
+            respuesta = int(respuesta)
+            if respuesta > len(menu) or respuesta < 1:
+                print("Error: No se encuentra dicha opcion")
+                continue
+            break
         return respuesta
     else:
         return -1
@@ -202,7 +234,7 @@ def contar_personajes_segun_tipo(lista:list, atributo:str)->list:
     else:
         return -1
 
-def dragon_ball_cantidad_segun_caracteristica(lista, atributo):
+def dragon_ball_cantidad_segun_caracteristica(lista:list, atributo:list):
     '''
     Brief: Muestra las caracteristicas y la cantidad de personajes que la poseen
     Parameters: 
@@ -233,12 +265,12 @@ def mostrar_personaje_segun_caracteristica(lista:list, atributo:str)->dict:
         diccionario_carac = mostrar_caracteristicas(lista, atributo)
         if type(diccionario_carac) == dict:
             for personaje in lista:
-                for caracteristica in personaje[atributo]:
-                    if diccionario_carac[caracteristica] == 0:
-                        diccionario_carac[caracteristica] = []
-                    for tipo in diccionario_carac:
-                        if tipo == caracteristica:
-                            diccionario_carac[caracteristica].append(personaje)
+                    for caracteristica in personaje[atributo]:
+                        if diccionario_carac[caracteristica] == 0:
+                            diccionario_carac[caracteristica] = []
+                        for tipo in diccionario_carac:
+                            if tipo == caracteristica:
+                                diccionario_carac[caracteristica].append(personaje)
             return diccionario_carac
         else:
             return -1
@@ -316,13 +348,16 @@ def dragon_ball_personajes_habilidad_ingresada(lista:list, atributo:str):
         agregar_promedio_pelea_ataque(lista)
         habilidad_ingresada = ingresar("la habilidad")
         lista_personajes = mostrar_personaje_segun_caracteristica(lista, atributo)
-        personajes_habilidad = lista_personajes[habilidad_ingresada]
-        print("los personajes que poseen dicha habilidad son:")
-        for personaje in personajes_habilidad:
-            print("-------------------------------")
-            for detalle in personaje:
-                if detalle == "nombre" or detalle == "raza" or detalle == "promedio_pelea_ataque":
-                    print(f'{detalle}: {personaje[detalle]}')
+        if habilidad_ingresada in lista_personajes:
+            personajes_habilidad = lista_personajes[habilidad_ingresada]
+            print("los personajes que poseen dicha habilidad son:")
+            for personaje in personajes_habilidad:
+                print("-------------------------------")
+                for detalle in personaje:
+                    if detalle == "nombre" or detalle == "raza" or detalle == "promedio_pelea_ataque":
+                        print(f'{detalle}: {personaje[detalle]}')
+        else:
+            print("No se encontro dicha habilidad")
     else:
         print("Ocurrio un error en la funcion")
 
@@ -338,10 +373,15 @@ def buscar_personaje_elegido(lista:list):
         -1 -> Error
     '''
     if type(lista) == list and len(lista)>0:
-        nombre_elegido = ingresar("personaje")
-        for personaje in lista:
-            if personaje["nombre"] == nombre_elegido:
-                personaje_elegido = personaje
+        while True:
+            bandera_personaje = False
+            nombre_elegido = ingresar("personaje")
+            for personaje in lista:
+                if personaje["nombre"] == nombre_elegido:
+                    personaje_elegido = personaje
+                    bandera_personaje = True
+            if bandera_personaje == True:
+                break
         return personaje_elegido
     else:
         return -1
@@ -430,15 +470,19 @@ def buscar_personajes(lista:list, atributo_elegido:str, atributo:str)->list:
         atributo:str -> El tipo de atributo (raza, habilidad)
     return:
         lista:list -> lista de los personajes que cumplen el atributo
+        2: int -> No se encontro personajes con esa caracteristica
         -1 : int -> Hubo un error en los datos ingresados
     '''
     if type(lista) == list and type(atributo_elegido) == str and type(atributo) == str:
         lista_personajes = mostrar_personaje_segun_caracteristica(lista, atributo)
-        personajes_habilidad = lista_personajes[atributo_elegido]
-        lista = []
-        for personaje in personajes_habilidad:
-            lista.append(personaje)
-        return lista
+        if atributo_elegido in lista_personajes:
+            personajes_habilidad = lista_personajes[atributo_elegido]
+            lista = []
+            for personaje in personajes_habilidad:
+                lista.append(personaje)
+            return lista
+        else:
+            return 2
     else: 
         return -1
 
@@ -452,11 +496,17 @@ def buscar_coincidencias(lista:list, raza:str, habilidad:str)->list:
         atributo:str -> tipo de habilidad elegida por el usuario
     return:
         lista_coincidencia:list -> lista de los personajes que cumplen con ambos atributos
+        2: int -> Se ingreso una raza inexistente
+        2: int -> Se ingreso una habilidad inexistente
         -1 : int -> Hubo un error en los datos ingresados
     '''
     if type(lista) == list and type(raza) == str and type(habilidad) == str:
         lista_raza = buscar_personajes(lista, raza, "raza")
+        if lista_raza == 2:
+            return 2
         lista_habilidad = buscar_personajes(lista, habilidad, "habilidades")
+        if lista_habilidad == 2:
+            return 3
         lista_coincidencia = []
         for personaje in lista_raza:
             if personaje in lista_habilidad:
@@ -509,17 +559,15 @@ def definir_que_agregar_json(lista_coincidencias:list, habilidad:str):
             return 1
         else:
             for personaje in lista_coincidencias:
-                nombre = personaje['nombre']
-                poder_pelea = personaje['poder_pelea']
                 habilidades = []
-
                 for caracteristica in personaje['habilidades']:
                     if caracteristica != habilidad:
                         habilidades.append(caracteristica)
-
-                habilidades_str = " + ".join(habilidades)
-
-                personaje_ = f"{nombre} - {poder_pelea} - {habilidades_str}"
+                personaje_ = {
+                    "nombre" : personaje ["nombre"], 
+                    "poder_pelea" : personaje ["poder_pelea"],
+                    "habilidades": habilidades
+                    }
                 lista.append(personaje_)
             return lista
     else: 
@@ -539,8 +587,11 @@ def dragon_ball_json(lista:list):
         raza = ingresar("una raza")
         habilidad = ingresar("una habilidad")
         lista_coincidencia = buscar_coincidencias(lista, raza, habilidad)
-        nombre_json = guardar_json(raza, habilidad, lista_coincidencia)
-        return nombre_json
+        if type(lista_coincidencia) == int:
+            print("Se ingreso una habilidad o raza inexistente")
+        else:
+            nombre_json = guardar_json(raza, habilidad, lista_coincidencia)
+            return nombre_json
     else:
         print("Error en los datos ingresados")
 

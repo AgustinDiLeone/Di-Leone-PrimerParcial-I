@@ -382,6 +382,8 @@ def buscar_personaje_elegido(lista:list):
                     bandera_personaje = True
             if bandera_personaje == True:
                 break
+            else:
+                print("Error: Personaje no encontrado")
         return personaje_elegido
     else:
         return -1

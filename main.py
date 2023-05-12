@@ -638,6 +638,16 @@ def dragon_ball_leer_json(nombre_archivo:str):
 ##############          NUEVO REQUERIMIENTO             #################
 
 def calcular_suma_porcentaje(sacar_porcentaje:int, porcentaje:int):
+    '''
+    Brief:
+        Calcula los porcentajes requeridos y los suma 
+    Parameters: 
+        sacar_porcentaje: int -> entero al que le queremos calcular el porcentaje
+        porcentaje: int -> Cual es el porcentaje
+    return:
+        porcentaje_calculado: float -> el porcentaje sumado al numero ingresado
+        1:int -> Hubo un error
+    '''
     if type (sacar_porcentaje) == int and type (porcentaje) == int:
         porcentaje_calculado = sacar_porcentaje * porcentaje / 100
         porcentaje_calculado += sacar_porcentaje
@@ -645,7 +655,15 @@ def calcular_suma_porcentaje(sacar_porcentaje:int, porcentaje:int):
     else:
         return 1
 
-def agregar_lista_mejoras_personajes(personaje):
+def agregar_lista_mejoras_personajes(personaje:dict):
+    '''
+    Brief:
+        Agrega las mejoras al personaje
+    Parameters: 
+        personaje: dict -> el personaje a mejorar
+    return:
+        1:int -> Hubo un error
+    '''
     if type (personaje) == dict:
         porcentaje_agregado = calcular_suma_porcentaje(personaje["poder_pelea"], 50)
         personaje["poder_pelea"] = porcentaje_agregado
@@ -656,6 +674,14 @@ def agregar_lista_mejoras_personajes(personaje):
         return 1
 
 def subir_personajes_csv(personaje:dict):
+    '''
+    Brief:
+        Sube el personaje mejorado a un archivo .csv
+    Parameters: 
+        personaje: dict -> el personaje mejorado
+    return:
+        1:int -> Hubo un error
+    '''
     if type (personaje) == dict:
         with open("Saiyan_mejorados.csv", "a") as archivo:
             for caracteristica in personaje:
@@ -664,6 +690,14 @@ def subir_personajes_csv(personaje:dict):
         return 1
 
 def deragon_ball_mejorar_Saiyan(lista:list):
+    '''
+    Brief:
+        Mejora los Saiyan
+    Parameters: 
+        lista: list -> lista de personaje
+    return:
+        None
+    '''
     if type(lista) == list:
         for personaje in lista:
             raza_saiyan = False
@@ -673,7 +707,7 @@ def deragon_ball_mejorar_Saiyan(lista:list):
             if raza_saiyan == True:
                 agregar_lista_mejoras_personajes(personaje)
                 subir_personajes_csv(personaje)
-        return lista
+        print("se mejoraron los saiyan")
     else:
         print("No se ingreso una lista valida")
 
